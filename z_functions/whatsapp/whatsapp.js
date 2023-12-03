@@ -1,0 +1,113 @@
+const mongoose = require("mongoose").default;
+const { MongoStore } = require("wwebjs-mongo");
+const locateChrome = require("locate-chrome");
+const { Client, RemoteAuth } = require("whatsapp-web.js");
+const qrcode = require("qrcode-terminal");
+let client;
+
+//Connect to nosql database and get persisted session data
+mongoose
+  .connect("mongodb+srv://devxowl:qhgnIF7JsqciVfSw@demo.togrzfx.mongodb.net/?retryWrites=true&w=majority")
+  .then(async () => {
+    console.log("Connected to Atlas Nosql DB, Attempting to load persisted whatsapp session");
+    const executablePath = (await new Promise((resolve) => locateChrome((arg) => resolve(arg)))) || "";
+    const store = new MongoStore({ mongoose: mongoose });
+    client = new Client({
+      puppeteer: {
+        executablePath,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+        ],
+        headless: true,
+      },
+      authStrategy: new RemoteAuth({
+        store: store,
+        backupSyncIntervalMs: 300000,
+      }),
+      authTimeoutMs: 60000,
+    });
+
+    client.initialize().then(() => {
+      console.log("Initialized client");
+    });
+    client.on("qr", (qr) => {
+      qrcode.generate(qr, { small: true });
+    });
+    client.on("remote_session_saved", () => {
+      console.log("Client remote session saved");
+    });
+    client.on("ready", () => {
+      console.log("Client is ready to send/receive requests");
+    });
+  });
+function sendWhatsappNumber(number, message, response) {
+  console.log("\nAttempting to send message");
+  console.log("Client ", client.info);
+  if (!client || !client.info)
+    response.status(400).send("Client is not ready!");
+  else {
+    client
+      .sendMessage(number + "@c.us", message)
+      .then((r) => {
+        response
+          .status(200)
+          .send("Message sent to [+" + number + "] successfully: " + r.body);
+      })
+      .catch((err) => {
+        response.status(400).send("Failed to send message: " + err);
+      });
+  }
+}
+
+function sendWhatsappMassNumber(numberList, message) {
+  console.log("\nAttempting to send mass message");
+  if (client.info !== undefined) {
+    numberList.forEach((number) => {
+      client
+        .sendMessage(number + "@c.us", message)
+        .then((r) => console.log("Mass message sent"));
+    });
+    return "Messages sent";
+    console.log("Message sent");
+  } else console.log("Client not ready!");
+}
+
+async function sendWhatsappGroupMessage(groupName, message) {
+  if (client.info !== undefined) {
+    const chats = await client.getChats();
+    console.log(chats);
+    await chats
+      .find((chat) => chat.isGroup && chat.name === groupName)
+      .sendMessage(message);
+    return "Message sent";
+  } else console.log("Client not ready!");
+}
+
+function sendWhatsappMassGroupMessage(groupNameList, message) {
+  if (client.info !== undefined) {
+    client.getChats().then((chats) => {
+      for (const groupName of groupNameList) {
+        const groupChat = chats.find(
+          (chat) => chat.isGroup && chat.name === groupName
+        );
+        if (groupChat) {
+          groupChat
+            .sendMessage(message)
+            .then((r) => console.log("sent to " + groupName));
+        } else {
+          console.log("Chat not found: " + groupName);
+        }
+      }
+    });
+    return "Messages sent";
+  } else console.log("throw error here");
+}
+
+module.exports = {
+  sendWhatsappNumber,
+  sendWhatsappMassNumber,
+  sendWhatsappGroupMessage,
+  sendWhatsappMassGroupMessage,
+};
