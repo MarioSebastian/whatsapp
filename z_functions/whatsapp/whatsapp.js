@@ -44,7 +44,6 @@ mongoose
   });
 function sendWhatsappNumber(number, message, response) {
   console.log("\nAttempting to send message");
-  console.log("Client ", client.info);
   if (!client || !client.info)
     response.status(400).send("Client is not ready!");
   else {
@@ -61,17 +60,22 @@ function sendWhatsappNumber(number, message, response) {
   }
 }
 
-function sendWhatsappMassNumber(numberList, message) {
+function sendWhatsappMassNumber(numberList, message, response) {
   console.log("\nAttempting to send mass message");
-  if (client.info !== undefined) {
-    numberList.forEach((number) => {
-      client
-        .sendMessage(number + "@c.us", message)
-        .then((r) => console.log("Mass message sent"));
-    });
-    return "Messages sent";
-    console.log("Message sent");
-  } else console.log("Client not ready!");
+  if (!client || !client.info)
+    response.status(400).send("Client is not ready!");
+  else {
+
+    Promise.all(numberList.map((number) => {
+      return client.sendMessage(number + "@c.us", message);
+    }))
+        .then((r) => {
+          response.status(200).send("Message sent to [+" + numberList + "] successfully: " + r.body);
+        })
+        .catch((err) => {
+          response.status(400).send("Failed to send messages: " + err);
+        });
+  }
 }
 
 async function sendWhatsappGroupMessage(groupName, message) {
