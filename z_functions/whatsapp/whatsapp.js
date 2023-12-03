@@ -7,7 +7,7 @@ let client;
 
 //Connect to nosql database and get persisted session data
 mongoose
-  .connect("mongodb+srv://devxowl:qhgnIF7JsqciVfSw@demo.togrzfx.mongodb.net/?retryWrites=true&w=majority")
+  .connect("mongodb+srv://mariosebastian:SoBxB4fzWJlZ2viA@whatsappsession.214xqdg.mongodb.net/?retryWrites=true&w=majority")
   .then(async () => {
     console.log("Connected to Atlas Nosql DB, Attempting to load persisted whatsapp session");
     const executablePath = (await new Promise((resolve) => locateChrome((arg) => resolve(arg)))) || "";

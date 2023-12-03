@@ -1,6 +1,6 @@
 1. To Run locally:
 ```shell
-docker build -t whatsapp-docker:latest .
+node app.js
 ```
 
 
