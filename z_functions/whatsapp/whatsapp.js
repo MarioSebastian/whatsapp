@@ -67,7 +67,14 @@ function sendWhatsappMassNumber(numberList, message, response) {
   else {
 
     Promise.all(numberList.map((number) => {
-      return client.sendMessage(number + "@c.us", message);
+        const delayInMilliseconds = (Math.random() * 4 + 2) * 10000;
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                client.sendMessage(number + "@c.us", message)
+                    .then((result) => resolve(result))
+                    .catch((error) => reject(error));
+            }, delayInMilliseconds);
+        });
     }))
         .then((r) => {
           response.status(200).send("Message sent to [+" + numberList + "] successfully: " + r.body);
