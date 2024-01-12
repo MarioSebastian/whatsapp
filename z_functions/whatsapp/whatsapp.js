@@ -43,21 +43,34 @@ mongoose
     });
   });
 function sendWhatsappNumber(number, message, response) {
-  console.log("\nAttempting to send message");
   if (!client || !client.info)
     response.status(400).send("Client is not ready!");
   else {
     client
       .sendMessage(number + "@c.us", message)
       .then((r) => {
-        response
-          .status(200)
-          .send("Message sent to [+" + number + "] successfully: " + r.body);
+        response.status(200).send("Message sent to [+" + number + "] successfully: " + r.body);
       })
       .catch((err) => {
         response.status(400).send("Failed to send message: " + err);
       });
   }
+}
+async function sendWhatsappGroupMessage(groupName, message, response) {
+    if (!client || !client.info)
+        response.status(400).send("Client is not ready!");
+    else {
+        const chats = await client.getChats();
+        await chats
+            .find((chat) => chat.isGroup && chat.name === groupName)
+            .sendMessage(message)
+            .then((r) => {
+                response.status(200).send("Message sent to [+" + groupName + "] successfully: " + r.body);
+            })
+            .catch((err) => {
+                response.status(400).send("Failed to send message: " + err);
+            });
+    }
 }
 
 function sendWhatsappMassNumber(numberList, message, response) {
@@ -85,16 +98,7 @@ function sendWhatsappMassNumber(numberList, message, response) {
   }
 }
 
-async function sendWhatsappGroupMessage(groupName, message) {
-  if (client.info !== undefined) {
-    const chats = await client.getChats();
-    console.log(chats);
-    await chats
-      .find((chat) => chat.isGroup && chat.name === groupName)
-      .sendMessage(message);
-    return "Message sent";
-  } else console.log("Client not ready!");
-}
+
 
 function sendWhatsappMassGroupMessage(groupNameList, message) {
   if (client.info !== undefined) {
