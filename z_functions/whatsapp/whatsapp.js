@@ -56,20 +56,21 @@ function sendWhatsappNumber(number, message, response) {
       });
   }
 }
-async function sendWhatsappGroupMessage(groupName, message, response) {
+function sendWhatsappGroupMessage(groupName, message, response) {
     if (!client || !client.info)
         response.status(400).send("Client is not ready!");
     else {
-        const chats = await client.getChats();
-        await chats
-            .find((chat) => chat.isGroup && chat.name === groupName)
-            .sendMessage(message)
-            .then((r) => {
-                response.status(200).send("Message sent to [+" + groupName + "] successfully: " + r.body);
-            })
-            .catch((err) => {
-                response.status(400).send("Failed to send message: " + err);
-            });
+        client.getChats().then((chats)=>{
+            chats
+                .find((chat) => chat.isGroup && chat.name === groupName)
+                .sendMessage(message)
+                .then((r) => {
+                    response.status(200).send("Message sent to [+" + groupName + "] successfully: " + r.body);
+                })
+                .catch((err) => {
+                    response.status(400).send("Failed to send message: " + err);
+                });
+        })
     }
 }
 
