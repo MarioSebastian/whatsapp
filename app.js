@@ -15,7 +15,7 @@ app.post("/sendWhatsappNumber", (req, res) => {
   whatsapp.sendWhatsappNumber(req.body.phoneNumber, req.body.message, res);
 });
 app.post("/sendWhatsappGroupMessage", (req, res) => {
-  whatsapp.sendWhatsappGroupMessage(req.body.groupName, req.body.message);
+  whatsapp.sendWhatsappGroupMessage(req.body.groupName, req.body.message, res);
 });
 
 // app.post("/sendWhatsappMassNumber", (req, res) => {
