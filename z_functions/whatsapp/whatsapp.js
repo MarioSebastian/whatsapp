@@ -60,7 +60,7 @@ function sendWhatsappGroupMessage(groupName, message, response) {
     if (!client || !client.info)
         response.status(400).send("Client is not ready!");
     else {
-        client.getChats().then((chats)=>{
+        client.getChats().then((chats) => {
             chats
                 .find((chat) => chat.isGroup && chat.name === groupName)
                 .sendMessage(message)
@@ -71,6 +71,9 @@ function sendWhatsappGroupMessage(groupName, message, response) {
                     response.status(400).send("Failed to send message: " + err);
                 });
         })
+            .catch((err) => {
+                response.status(400).send("Failed to send message: " + err);
+            });
     }
 }
 
