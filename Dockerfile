@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a base image
-FROM node:20.16.0 AS app
+FROM node:20.8.0 AS app
 
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
