@@ -13,6 +13,10 @@ mongoose
     const executablePath = (await new Promise((resolve) => locateChrome((arg) => resolve(arg)))) || "";
     const store = new MongoStore({ mongoose: mongoose });
     client = new Client({
+      webVersionCache: {
+         type: "remote",
+         remotePath: "https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html",
+      },
       puppeteer: {
         executablePath,
         args: [
