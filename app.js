@@ -1,6 +1,7 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const app = express();
+const bodyParser = require("body-parser");
+const whatsapp = require("./whatsappFunctions/whatsapp");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -9,26 +10,26 @@ app.listen(8080, () => {
   console.log("Application listening on port 8080!");
 });
 
-//Whatsapp Sender
-const whatsapp = require("./z_functions/whatsapp/whatsapp");
-app.post("/sendWhatsappNumber", (req, res) => {
-  whatsapp.sendWhatsappNumber(req.body.phoneNumber, req.body.message, res);
-});
-app.post("/sendWhatsappGroupMessage", (req, res) => {
-  whatsapp.sendWhatsappGroupMessage(req.body.groupName, req.body.message, res);
+app.get(['', '/', '/test'], (req, res) => {
+  res.send("server online");
 });
 
-// app.post("/sendWhatsappMassNumber", (req, res) => {
-//   whatsapp.sendWhatsappMassNumber(req.body.phoneNumberList, req.body.message, res)
-// });
-// app.post("/sendWhatsappMassGroupMessage", (req, res) => {
-//   res.send(
-//     whatsapp.sendWhatsappMassGroupMessage(
-//       req.body.groupNameList,
-//       req.body.message
-//     )
-//   );
-// });
-// app.get("/test", (req, res) => {
-//   res.send("server ok");
-// });
+//Send whatsapp message to numbers
+app.post("/sendWhatsappMessageNumber", (req, res) => {
+  whatsapp.sendWhatsappMessageNumber(req.body.phoneNumbers, req.body.message, res);
+});
+
+//Send whatsapp message with file to numbers
+app.post("/sendWhatsappFileNumber", (req, res) => {
+  //multipart form
+});
+
+//Send whatsapp message to groups
+app.post("/sendWhatsappMessageGroup", (req, res) => {
+  whatsapp.sendWhatsappMessageGroup(req.body.groupNames, req.body.message, res);
+});
+
+//Send whatsapp message with file to groups
+app.post("/sendWhatsappFileGroup", (req, res) => {
+  //multipart form
+});
